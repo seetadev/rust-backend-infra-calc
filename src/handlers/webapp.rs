@@ -6,7 +6,6 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::{models::ApiResponse, AppState};
@@ -189,7 +188,7 @@ pub async fn handle_webapp_post(
         }
         "purchase" => {
             let app_name = form.appname.unwrap_or_default();
-            
+
             if let Err(_) = state.db.update_purchase(user_id, &app_name, 10, 0).await {
                 return Err(StatusCode::INTERNAL_SERVER_ERROR);
             }

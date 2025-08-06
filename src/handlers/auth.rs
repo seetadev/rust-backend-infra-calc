@@ -4,14 +4,12 @@ use axum::{
     response::Json,
     Form,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
-use std::collections::HashMap;
-use uuid::Uuid;
 
 use crate::{
     auth::{create_jwt, generate_random_string, hash_password, verify_password},
-    models::{ApiResponse, LoginRequest, RegisterRequest},
+    models::ApiResponse,
     services::email::EmailService,
     AppState,
 };
@@ -147,12 +145,15 @@ pub async fn lost_password(
     };
 
     let dongle = generate_random_string(20);
-    
+
     if let Err(_) = state.db.set_user_dongle(user.id, &dongle).await {
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
-    let reset_link = format!("http://localhost:8080/pwreset?u={}&d={}", form.email, dongle);
+    let reset_link = format!(
+        "http://localhost:8080/pwreset?u={}&d={}",
+        form.email, dongle
+    );
     let message = format!(
         "Please click the following link to reset password for user {}\n{}",
         form.email, reset_link
@@ -160,6 +161,7 @@ pub async fn lost_password(
 
     let email_service = EmailService::new(&state.config);
     if let Err(_) = email_service
+        .await
         .send_email(&form.email, "Password Reset", &message)
         .await
     {
