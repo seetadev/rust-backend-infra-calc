@@ -1,6 +1,6 @@
 # Rust Backend for rust peer experiments using SocialCalc/EtherCalc and libp2p
 
-A modern Rust implementation of the SocialCalc (Aspiring Investments) backend using Axum framework.
+A modern Rust implementation of the SocialCalc (Aspiring Investments) backend using Axum framework for testing rust peer.
 
 ## Features
 
