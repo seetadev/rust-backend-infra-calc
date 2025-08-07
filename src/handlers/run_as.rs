@@ -1,8 +1,12 @@
-use axum::{extract::{Extension, Query, State}, http::StatusCode, response::Json};
+use crate::{models::ApiResponse, AppState};
+use axum::{
+    extract::{Extension, Query, State},
+    http::StatusCode,
+    response::Json,
+};
 use serde::Deserialize;
 use serde_json::json;
 use uuid::Uuid;
-use crate::{models::ApiResponse, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct RunAsQuery {
@@ -16,14 +20,16 @@ pub async fn run_app(
     Query(query): Query<RunAsQuery>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, StatusCode> {
     let file_path = format!("home/{}", query.file);
-    
+
     match state.db.get_file(user_id, &file_path).await {
         Ok(Some(file)) => {
-            let sheets = query.sheets.unwrap_or_default()
+            let sheets = query
+                .sheets
+                .unwrap_or_default()
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .collect::<Vec<String>>();
-            
+
             Ok(Json(ApiResponse::success(json!({
                 "fname": query.file,
                 "sheetstr": file.content,

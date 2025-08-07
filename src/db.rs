@@ -1,7 +1,7 @@
-use sqlx::{PgPool, Row};
+use crate::models::{FileData, InAppPurchase, User};
+use chrono::Utc;
+use sqlx::PgPool;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use crate::models::{User, FileData, InAppPurchase};
 
 #[derive(Clone)]
 pub struct Database {
@@ -11,10 +11,10 @@ pub struct Database {
 impl Database {
     pub async fn new(database_url: &str) -> anyhow::Result<Self> {
         let pool = PgPool::connect(database_url).await?;
-        
+
         // Run migrations
         sqlx::migrate!("./migrations").run(&pool).await?;
-        
+
         Ok(Self { pool })
     }
 
@@ -51,7 +51,11 @@ impl Database {
         Ok(user)
     }
 
-    pub async fn update_user_password(&self, user_id: Uuid, password_hash: &str) -> anyhow::Result<()> {
+    pub async fn update_user_password(
+        &self,
+        user_id: Uuid,
+        password_hash: &str,
+    ) -> anyhow::Result<()> {
         sqlx::query!(
             "UPDATE users SET password_hash = $1, updated_at = $2 WHERE id = $3",
             password_hash,
@@ -78,7 +82,12 @@ impl Database {
     }
 
     // File operations
-    pub async fn create_file(&self, user_id: Uuid, path: &str, content: &str) -> anyhow::Result<FileData> {
+    pub async fn create_file(
+        &self,
+        user_id: Uuid,
+        path: &str,
+        content: &str,
+    ) -> anyhow::Result<FileData> {
         let file = sqlx::query_as!(
             FileData,
             r#"
@@ -112,7 +121,12 @@ impl Database {
         Ok(file)
     }
 
-    pub async fn update_file(&self, user_id: Uuid, path: &str, content: &str) -> anyhow::Result<()> {
+    pub async fn update_file(
+        &self,
+        user_id: Uuid,
+        path: &str,
+        content: &str,
+    ) -> anyhow::Result<()> {
         sqlx::query!(
             "UPDATE files SET content = $1, updated_at = $2 WHERE user_id = $3 AND path = $4",
             content,
@@ -138,7 +152,11 @@ impl Database {
         Ok(())
     }
 
-    pub async fn list_files(&self, user_id: Uuid, path_prefix: &str) -> anyhow::Result<Vec<FileData>> {
+    pub async fn list_files(
+        &self,
+        user_id: Uuid,
+        path_prefix: &str,
+    ) -> anyhow::Result<Vec<FileData>> {
         let files = sqlx::query_as!(
             FileData,
             "SELECT id, user_id, path, content, created_at, updated_at FROM files WHERE user_id = $1 AND path LIKE $2",
@@ -152,7 +170,11 @@ impl Database {
     }
 
     // In-app purchase operations
-    pub async fn get_or_create_purchase(&self, user_id: Uuid, app_name: &str) -> anyhow::Result<InAppPurchase> {
+    pub async fn get_or_create_purchase(
+        &self,
+        user_id: Uuid,
+        app_name: &str,
+    ) -> anyhow::Result<InAppPurchase> {
         // Try to get existing purchase
         if let Some(purchase) = sqlx::query_as!(
             InAppPurchase,
@@ -188,7 +210,13 @@ impl Database {
         Ok(purchase)
     }
 
-    pub async fn update_purchase(&self, user_id: Uuid, app_name: &str, owned: i32, consumed: i32) -> anyhow::Result<()> {
+    pub async fn update_purchase(
+        &self,
+        user_id: Uuid,
+        app_name: &str,
+        owned: i32,
+        consumed: i32,
+    ) -> anyhow::Result<()> {
         sqlx::query!(
             "UPDATE in_app_purchases SET owned = $1, consumed = $2, updated_at = $3 WHERE user_id = $4 AND app_name = $5",
             owned,

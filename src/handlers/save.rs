@@ -8,7 +8,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::{
-    models::{ApiResponse, FileListEntry, SaveFileRequest},
+    models::{ApiResponse, FileListEntry},
     AppState,
 };
 

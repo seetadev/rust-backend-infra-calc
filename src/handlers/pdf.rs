@@ -1,6 +1,10 @@
-use axum::{extract::{Query, State}, http::StatusCode, response::Json, Form};
-use serde::Deserialize;
 use crate::{models::ApiResponse, AppState};
+use axum::{
+    extract::{Query, State},
+    response::Json,
+    Form,
+};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct PdfQuery {
